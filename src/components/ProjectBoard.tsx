@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { TaskDrawer } from "./TaskDrawer";
 import { CreateTaskModal } from "./modals/CreateTaskModal";
+import { mockUsers } from "@/data/mockData";
+
 import {
   Plus,
   MoreVertical,
@@ -408,7 +410,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
         open={taskDrawerOpen}
         onOpenChange={setTaskDrawerOpen}
         task={selectedTask}
-        users={users}
+        users={mockUsers as User[]}
         onTaskUpdate={updateTask}
         onTaskDelete={deleteTask}
       />
@@ -423,7 +425,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
             sectionId: selectedSectionId,
           })
         }
-        users={users}
+        users={mockUsers as User[]}
         defaultProjectId={project.id}
       />
     </>
