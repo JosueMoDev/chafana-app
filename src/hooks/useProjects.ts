@@ -1,26 +1,34 @@
 "use client";
 
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useEffect, useState } from "react";
 import { Project } from "@/interfaces";
 import { useProjectsStore } from "@/stores/useProjectStore";
 
 export function useProjects() {
-  const { projects, addProject, setSelectedProjectId, selectedProjectId } =
-    useProjectsStore();
-  const [storedProjects, setStoredProjects] = useLocalStorage<Project[]>(
-    "asana-projects",
-    []
-  );
+  const {
+    projects,
+    addProject,
+    setSelectedProjectId,
+    selectedProjectId,
+    loadProjects,
+  } = useProjectsStore();
 
-  // Inicializar store desde localStorage si está vacío
-  if (projects.length === 0 && storedProjects.length > 0) {
-    storedProjects.forEach((p) => addProject(p));
-  }
+  const [projectsWithTasks, setProjectsWithTasks] = useState<Project[]>([]);
+
+  // Cargar los proyectos procesados del store al montar
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
+
+  // Mantener sincronizado el state local con los projects del store
+  useEffect(() => {
+    console.log(projects);
+    setProjectsWithTasks(projects);
+  }, [projects]);
 
   const selectedProject =
-    projects.find((p) => p.id === selectedProjectId) || null;
+    projectsWithTasks.find((p) => p.id === selectedProjectId) || null;
 
-  // Función que ahora tu layout sí reconoce
   const createProject = (
     projectData: Omit<Project, "id" | "createdAt" | "updatedAt">
   ) => {
@@ -34,15 +42,15 @@ export function useProjects() {
       taskCount: 0,
       completedTaskCount: 0,
     };
+
     addProject(newProject);
-    setStoredProjects([...storedProjects, newProject]);
     setSelectedProjectId(newProject.id);
   };
 
   const selectProject = (projectId: string) => setSelectedProjectId(projectId);
 
   return {
-    projects,
+    projects: projectsWithTasks,
     selectedProject,
     createProject,
     selectProject,

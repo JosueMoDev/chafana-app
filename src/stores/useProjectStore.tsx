@@ -1,14 +1,14 @@
-"use client";
 import { create } from "zustand";
-import { Project, ProjectSection } from "@/interfaces";
+import { Project, ProjectSection, Task } from "@/interfaces";
 
 const LOCAL_STORAGE_KEY = "asana-projects";
+const LOCAL_STORAGE_TASKS_KEY = "asana-tasks";
 
 interface ProjectsState {
   projects: Project[];
   selectedProjectId: string;
   setSelectedProjectId: (id: string) => void;
-  loadProjects: () => void; // NUEVO
+  loadProjects: () => void;
   addProject: (
     project: Omit<Project, "id" | "createdAt" | "updatedAt">
   ) => void;
@@ -24,32 +24,58 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
   selectedProjectId: "",
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
 
-  // Cargar desde localStorage solo en cliente
   loadProjects: () => {
     if (typeof window === "undefined") return;
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const projects: Project[] = stored ? JSON.parse(stored) : [];
-    set({ projects, selectedProjectId: projects[0]?.id || "" });
+
+    // Traer tasks del storage
+    const storedTasks = localStorage.getItem(LOCAL_STORAGE_TASKS_KEY);
+    const tasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
+
+    // Traer proyectos del storage
+    const storedProjects = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const projects: Project[] = storedProjects
+      ? JSON.parse(storedProjects)
+      : [];
+
+    // Construir proyectos con tasks en cada sección
+    const projectsWithTasks = projects.map((project) => ({
+      ...project,
+      sections: project.sections.map((section) => ({
+        ...section,
+        // Aquí agregamos la propiedad tasks temporalmente
+        tasks: tasks.filter(
+          (t) => t.projectId === project.id && t.sectionId === section.id
+        ),
+      })),
+    }));
+
+    set({
+      projects: projectsWithTasks,
+      selectedProjectId: projectsWithTasks[0]?.id || "",
+    });
   },
 
   addProject: (project) => {
+    const newProjectId = crypto.randomUUID();
     const newProject: Project = {
       ...project,
-      id: crypto.randomUUID(),
+      id: newProjectId,
       createdAt: new Date(),
       updatedAt: new Date(),
-      sections: project.sections.map((section) => ({
+      sections: project.sections.map((section, index) => ({
         ...section,
         id: crypto.randomUUID(),
-        projectId: crypto.randomUUID(),
+        projectId: newProjectId,
+        order: index,
         createdAt: new Date(),
+        tasks: [], // inicializar vacío
       })),
     };
+
     set((state) => {
       const updated = [...state.projects, newProject];
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-      return { projects: updated, selectedProjectId: newProject.id };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      return { projects: updated, selectedProjectId: newProjectId };
     });
   },
 
@@ -60,16 +86,14 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
           ? { ...updatedProject, updatedAt: new Date() }
           : p
       );
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
       return { projects };
     }),
 
   deleteProject: (projectId) =>
     set((state) => {
       const projects = state.projects.filter((p) => p.id !== projectId);
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
       const selectedProjectId =
         state.selectedProjectId === projectId
           ? projects[0]?.id || ""
@@ -81,6 +105,7 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
     set((state) => {
       const projects = state.projects.map((p) => {
         if (p.id !== projectId) return p;
+
         const newSection: ProjectSection = {
           id: crypto.randomUUID(),
           name,
@@ -88,14 +113,15 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
           order: p.sections.length,
           createdAt: new Date(),
         };
+
         return {
           ...p,
           sections: [...p.sections, newSection],
           updatedAt: new Date(),
         };
       });
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
       return { projects };
     }),
 
@@ -111,8 +137,8 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
           updatedAt: new Date(),
         };
       });
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
       return { projects };
     }),
 
@@ -126,8 +152,8 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
           updatedAt: new Date(),
         };
       });
-      if (typeof window !== "undefined")
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
       return { projects };
     }),
 }));

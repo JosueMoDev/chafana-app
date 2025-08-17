@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { Task, User } from "@/interfaces";
 import {
@@ -35,8 +36,8 @@ interface CreateTaskModalProps {
   onOpenChange: (open: boolean) => void;
   onTaskCreate: (task: Omit<Task, "id" | "createdAt" | "updatedAt">) => void;
   users: User[];
-  defaultProjectId?: string;
-  defaultSectionId?: string;
+  projectId: string; // obligatorio
+  sectionId: string; // obligatorio
 }
 
 export function CreateTaskModal({
@@ -44,16 +45,16 @@ export function CreateTaskModal({
   onOpenChange,
   onTaskCreate,
   users,
-  defaultProjectId,
-  defaultSectionId,
+  projectId,
+  sectionId,
 }: CreateTaskModalProps) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     status: "todo" as Task["status"],
     priority: "medium" as Task["priority"],
-    projectId: defaultProjectId || "",
-    sectionId: defaultSectionId || "",
+    projectId, // obligatorio
+    sectionId, // obligatorio
     assigneeId: "unassigned",
     dueDate: undefined as Date | undefined,
   });
@@ -61,8 +62,7 @@ export function CreateTaskModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (!formData.title.trim() || !formData.projectId || !formData.sectionId) return;
-
+    // Enviar tarea
     onTaskCreate({
       ...formData,
       assigneeId:
@@ -70,14 +70,14 @@ export function CreateTaskModal({
       dueDate: formData.dueDate,
     });
 
-    // Reset form
+    // Resetear formulario manteniendo projectId y sectionId
     setFormData({
       title: "",
       description: "",
       status: "todo",
       priority: "medium",
-      projectId: defaultProjectId || "",
-      sectionId: defaultSectionId || "",
+      projectId,
+      sectionId,
       assigneeId: "unassigned",
       dueDate: undefined,
     });
@@ -184,31 +184,30 @@ export function CreateTaskModal({
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar miembro del equipo">
-                    {formData.assigneeId &&
-                      formData.assigneeId !== "unassigned" && (
-                        <div className="flex items-center space-x-2">
-                          {(() => {
-                            const assignee = getAssignee(formData.assigneeId);
-                            return assignee ? (
-                              <>
-                                <Avatar className="w-5 h-5">
-                                  <AvatarImage
-                                    src={assignee.avatar}
-                                    alt={assignee.name}
-                                  />
-                                  <AvatarFallback className="text-xs">
-                                    {assignee.name
-                                      .split(" ")
-                                      .map((n) => n[0])
-                                      .join("")}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span>{assignee.name}</span>
-                              </>
-                            ) : null;
-                          })()}
-                        </div>
-                      )}
+                    {formData.assigneeId !== "unassigned" && (
+                      <div className="flex items-center space-x-2">
+                        {(() => {
+                          const assignee = getAssignee(formData.assigneeId);
+                          return assignee ? (
+                            <>
+                              <Avatar className="w-5 h-5">
+                                <AvatarImage
+                                  src={assignee.avatar}
+                                  alt={assignee.name}
+                                />
+                                <AvatarFallback className="text-xs">
+                                  {assignee.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span>{assignee.name}</span>
+                            </>
+                          ) : null;
+                        })()}
+                      </div>
+                    )}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -242,11 +241,9 @@ export function CreateTaskModal({
                     className="justify-start w-full font-normal text-left"
                   >
                     <CalendarIcon className="w-4 h-4 mr-2" />
-                    {formData.dueDate ? (
-                      format(formData.dueDate, "dd/MM/yyyy")
-                    ) : (
-                      <span>Seleccionar fecha</span>
-                    )}
+                    {formData.dueDate
+                      ? format(formData.dueDate, "dd/MM/yyyy")
+                      : "Seleccionar fecha"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">

@@ -29,9 +29,8 @@ interface ProjectBoardProps {
 }
 
 export function ProjectBoard({ project, users }: ProjectBoardProps) {
-  const { updateProject, addSection, updateSection, deleteSection } =
-    useProjectsStore();
-  const { tasks, addTask, updateTask, deleteTask } = useTasksStore();
+  const { addSection, updateSection, deleteSection } = useProjectsStore();
+  const { addTask, updateTask, deleteTask } = useTasksStore();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
@@ -42,8 +41,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
   const [editingSectionName, setEditingSectionName] = useState("");
   const [newSectionName, setNewSectionName] = useState("");
   const [isAddingSection, setIsAddingSection] = useState(false);
-
-  const projectTasks = tasks.filter((t) => t.projectId === project.id);
 
   const getUserById = (id: string) => users.find((user) => user.id === id);
 
@@ -124,17 +121,19 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
   };
 
   const handleDeleteSection = (sectionId: string) => {
-    const sectionTasks = projectTasks.filter((t) => t.sectionId === sectionId);
-    const firstSection = project.sections.find((s) => s.id !== sectionId);
+    const section = project.sections.find((s) => s.id === sectionId);
+    if (!section) return;
 
-    if (firstSection) {
-      sectionTasks.forEach((task) =>
+    // Reasignar tareas a la primera sección distinta
+    const firstSection = project.sections.find((s) => s.id !== sectionId);
+    if (firstSection && section.tasks) {
+      section.tasks.forEach((task) => {
         updateTask({
           ...task,
           sectionId: firstSection.id,
           updatedAt: new Date(),
-        })
-      );
+        });
+      });
     }
 
     deleteSection(project.id, sectionId);
@@ -166,9 +165,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
         {/* Board */}
         <div className="flex space-x-6 overflow-x-auto pb-4">
           {sortedSections.map((section) => {
-            const sectionTasks = projectTasks.filter(
-              (t) => t.sectionId === section.id
-            );
+            const sectionTasks = section.tasks || [];
 
             return (
               <div
@@ -246,8 +243,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                     className="w-full bg-indigo-600 hover:bg-indigo-700 h-9"
                     size="sm"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agregar Tarea
+                    <Plus className="w-4 h-4 mr-2" /> Agregar Tarea
                   </Button>
                 </div>
 
@@ -288,7 +284,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                               {task.description}
                             </p>
                           )}
-
                           <div className="flex items-center justify-between">
                             <Badge
                               className={`text-xs ${getPriorityColor(
@@ -301,7 +296,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                                 ? "Media"
                                 : "Baja"}
                             </Badge>
-
                             {task.dueDate && (
                               <div
                                 className={`flex items-center text-xs ${
@@ -316,7 +310,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                               </div>
                             )}
                           </div>
-
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               {(task.attachments?.length || 0) > 0 && (
@@ -376,8 +369,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                 />
                 <div className="flex space-x-2">
                   <Button size="sm" onClick={handleAddSection}>
-                    <Check className="w-4 h-4 mr-1" />
-                    Agregar
+                    <Check className="w-4 h-4 mr-1" /> Agregar
                   </Button>
                   <Button
                     size="sm"
@@ -387,8 +379,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                       setNewSectionName("");
                     }}
                   >
-                    <X className="w-4 h-4 mr-1" />
-                    Cancelar
+                    <X className="w-4 h-4 mr-1" /> Cancelar
                   </Button>
                 </div>
               </div>
@@ -398,8 +389,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                 className="w-full h-16 border-dashed border-2 text-gray-500 hover:text-gray-700 hover:border-gray-400"
                 onClick={() => setIsAddingSection(true)}
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Agregar Sección
+                <Plus className="w-5 h-5 mr-2" /> Agregar Sección
               </Button>
             )}
           </div>
@@ -426,7 +416,8 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
           })
         }
         users={mockUsers as User[]}
-        defaultProjectId={project.id}
+        projectId={project.id}
+        sectionId={selectedSectionId}
       />
     </>
   );

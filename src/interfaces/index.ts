@@ -24,14 +24,15 @@ export interface ProjectSection {
   projectId: string;
   order: number;
   createdAt: Date;
+  tasks?: Task[];
 }
 
 export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'todo' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  status: "todo" | "in-progress" | "completed";
+  priority: "low" | "medium" | "high";
   projectId: string;
   sectionId: string;
   assigneeId?: string;
@@ -46,7 +47,7 @@ export interface TaskAttachment {
   id: string;
   name: string;
   url: string;
-  type: 'image' | 'video' | 'document' | 'other';
+  type: "image" | "video" | "document" | "other";
   size: number;
   uploadedAt: Date;
   uploadedBy: string;
@@ -60,5 +61,5 @@ export interface TaskComment {
   updatedAt: Date;
 }
 
-export type ViewType = 'dashboard' | 'projects' | 'tasks';
-export type TaskViewType = 'board' | 'list';
+export type ViewType = "dashboard" | "projects" | "tasks";
+export type TaskViewType = "board" | "list";
