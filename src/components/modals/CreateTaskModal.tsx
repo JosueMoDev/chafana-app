@@ -269,6 +269,7 @@ export function CreateTaskModal({
               Cancelar
             </Button>
             <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="submit" className="bg-primary hover:bg-primary/90 theme-transition">
               Crear Tarea
             </Button>
           </DialogFooter>

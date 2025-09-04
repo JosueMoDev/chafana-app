@@ -623,12 +623,12 @@ export function TaskDrawer({
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="bg-muted/50 rounded-lg p-3 theme-transition">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm font-medium">
                                   {author?.name}
                                 </span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-muted-foreground">
                                   {format(
                                     new Date(comment.createdAt),
                                     "dd MMM yyyy HH:mm",
@@ -636,7 +636,7 @@ export function TaskDrawer({
                                   )}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                              <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {comment.content}
                               </p>
                             </div>
@@ -646,7 +646,7 @@ export function TaskDrawer({
                     })}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">
+                  <p className="text-muted-foreground text-center py-8">
                     No hay comentarios aún
                   </p>
                 )}

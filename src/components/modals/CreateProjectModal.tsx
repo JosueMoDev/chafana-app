@@ -139,10 +139,10 @@ export function CreateProjectModal({
                   <button
                     key={color}
                     type="button"
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    className={`w-8 h-8 rounded-full border-2 transition-all theme-transition hover:scale-110 ${
                       formData.color === color
-                        ? "border-gray-900 scale-110"
-                        : "border-gray-300 hover:scale-105"
+                        ? "border-foreground scale-110 shadow-lg"
+                        : "border-border hover:border-muted-foreground"
                     }`}
                     style={{ backgroundColor: color }}
                     onClick={() => setFormData((prev) => ({ ...prev, color }))}
@@ -172,7 +172,7 @@ export function CreateProjectModal({
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </div>
                 ))}
@@ -189,6 +189,7 @@ export function CreateProjectModal({
               Cancelar
             </Button>
             <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
+            <Button type="submit" className="bg-primary hover:bg-primary/90 theme-transition">
               Crear Proyecto
             </Button>
           </DialogFooter>
