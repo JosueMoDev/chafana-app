@@ -18,7 +18,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const { addProject } = useProjectsStore();
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background theme-transition">
       {/* Sidebar */}
       <Sidebar
         currentView="projects"

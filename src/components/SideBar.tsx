@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProjectsStore } from "@/stores/useProjectStore";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface SidebarProps {
   currentView: string;
@@ -36,19 +37,19 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-50",
+        "fixed left-0 top-0 h-full bg-background border-r border-border transition-all duration-300 z-50 theme-transition",
         collapsed ? "w-16" : "w-64"
       )}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           {!collapsed && (
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <CheckSquare className="w-5 h-5 text-white" />
               </div>
-              <span className="font-semibold text-gray-900">TaskFlow</span>
+              <span className="font-semibold text-foreground">TaskFlow</span>
             </div>
           )}
           <Button
@@ -71,7 +72,7 @@ export function Sidebar({
             <Button
               variant={currentView === "projects" ? "secondary" : "ghost"}
               className={cn(
-                "w-full justify-start h-10",
+                "w-full justify-start h-10 theme-transition",
                 collapsed ? "px-2" : "px-3"
               )}
               onClick={() => onViewChange("projects")}
@@ -90,14 +91,17 @@ export function Sidebar({
                   <h3 className="text-sm font-medium text-gray-600">
                     Proyectos
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={onCreateProject}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center space-x-1">
+                    {!collapsed && <ThemeToggle />}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={onCreateProject}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
@@ -109,8 +113,9 @@ export function Sidebar({
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn(
                           "w-full justify-start h-9 px-3",
+                          "theme-transition",
                           isActive &&
-                            "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                            "bg-primary/10 text-primary hover:bg-primary/20"
                         )}
                         onClick={() => setSelectedProjectId(project.id)}
                       >
@@ -129,11 +134,16 @@ export function Sidebar({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="p-2 border-t border-gray-200">
+        <div className="p-2 border-t border-border">
+          {collapsed && (
+            <div className="flex justify-center mb-2">
+              <ThemeToggle />
+            </div>
+          )}
           <Button
             variant="ghost"
             className={cn(
-              "w-full justify-start h-10",
+              "w-full justify-start h-10 theme-transition",
               collapsed ? "px-2" : "px-3"
             )}
           >

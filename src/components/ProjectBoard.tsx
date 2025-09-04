@@ -145,7 +145,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
 
   return (
     <>
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 theme-transition">
         {/* Project Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -154,11 +154,11 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: project.color }}
               />
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
                 {project.name}
               </h1>
             </div>
-            <p className="text-gray-600">{project.description}</p>
+            <p className="text-muted-foreground">{project.description}</p>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                 onDrop={(e) => handleDrop(e, section.id)}
               >
                 {/* Section Header */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="bg-muted/30 rounded-lg p-4 mb-4 theme-transition">
                   <div className="flex items-center justify-between mb-3">
                     {editingSectionId === section.id ? (
                       <div className="flex items-center space-x-2 flex-1">
@@ -210,7 +210,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                     ) : (
                       <>
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-foreground">
                             {section.name}
                           </h3>
                           <Badge variant="secondary" className="text-xs">
@@ -240,7 +240,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                   </div>
                   <Button
                     onClick={() => handleCreateTask(section.id)}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 h-9"
+                    className="w-full bg-primary hover:bg-primary/90 h-9 theme-transition"
                     size="sm"
                   >
                     <Plus className="w-4 h-4 mr-2" /> Agregar Tarea
@@ -258,7 +258,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                     return (
                       <Card
                         key={task.id}
-                        className="hover:shadow-md transition-shadow cursor-pointer"
+                        className="hover:shadow-md transition-all duration-200 cursor-pointer theme-transition hover:scale-[1.02] border-border/50"
                         draggable
                         onDragStart={(e) => handleDragStart(e, task)}
                         onClick={() => handleTaskClick(task)}
@@ -280,7 +280,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                         </CardHeader>
                         <CardContent className="pt-0 space-y-3">
                           {task.description && (
-                            <p className="text-xs text-gray-600 line-clamp-2">
+                            <p className="text-xs text-muted-foreground line-clamp-2">
                               {task.description}
                             </p>
                           )}
@@ -299,7 +299,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                             {task.dueDate && (
                               <div
                                 className={`flex items-center text-xs ${
-                                  overdue ? "text-red-600" : "text-gray-500"
+                                  overdue ? "text-destructive" : "text-muted-foreground"
                                 }`}
                               >
                                 {overdue && (
@@ -313,13 +313,13 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               {(task.attachments?.length || 0) > 0 && (
-                                <div className="flex items-center text-xs text-gray-500">
+                                <div className="flex items-center text-xs text-muted-foreground">
                                   <Paperclip className="w-3 h-3 mr-1" />
                                   {task.attachments?.length}
                                 </div>
                               )}
                               {(task.comments?.length || 0) > 0 && (
-                                <div className="flex items-center text-xs text-gray-500">
+                                <div className="flex items-center text-xs text-muted-foreground">
                                   <MessageCircle className="w-3 h-3 mr-1" />
                                   {task.comments?.length}
                                 </div>
@@ -352,7 +352,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
           {/* Add Section */}
           <div className="flex-shrink-0 w-80">
             {isAddingSection ? (
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-muted/30 rounded-lg p-4 theme-transition">
                 <Input
                   value={newSectionName}
                   onChange={(e) => setNewSectionName(e.target.value)}
@@ -386,7 +386,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
             ) : (
               <Button
                 variant="outline"
-                className="w-full h-16 border-dashed border-2 text-gray-500 hover:text-gray-700 hover:border-gray-400"
+                className="w-full h-16 border-dashed border-2 text-muted-foreground hover:text-foreground hover:border-border theme-transition"
                 onClick={() => setIsAddingSection(true)}
               >
                 <Plus className="w-5 h-5 mr-2" /> Agregar Sección
