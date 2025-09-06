@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Project, User } from "@/interfaces";
 import {
@@ -172,7 +173,9 @@ export function CreateProjectModal({
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -188,8 +191,14 @@ export function CreateProjectModal({
             >
               Cancelar
             </Button>
-            <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700">
-            <Button type="submit" className="bg-primary hover:bg-primary/90 theme-transition">
+            <Button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700"
+            />
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary/90 theme-transition"
+            >
               Crear Proyecto
             </Button>
           </DialogFooter>

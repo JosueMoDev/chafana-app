@@ -240,7 +240,8 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                   </div>
                   <Button
                     onClick={() => handleCreateTask(section.id)}
-                    className="w-full bg-primary hover:bg-primary/90 h-9 theme-transition"
+                    className="w-full h-9 theme-transition"
+                    variant={"secondary"}
                     size="sm"
                   >
                     <Plus className="w-4 h-4 mr-2" /> Agregar Tarea
@@ -299,7 +300,9 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                             {task.dueDate && (
                               <div
                                 className={`flex items-center text-xs ${
-                                  overdue ? "text-destructive" : "text-muted-foreground"
+                                  overdue
+                                    ? "text-destructive"
+                                    : "text-muted-foreground"
                                 }`}
                               >
                                 {overdue && (
