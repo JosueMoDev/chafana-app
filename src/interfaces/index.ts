@@ -41,6 +41,7 @@ export interface Task {
   updatedAt: Date;
   attachments?: TaskAttachment[];
   comments?: TaskComment[];
+  order?: number;
 }
 
 export interface TaskAttachment {

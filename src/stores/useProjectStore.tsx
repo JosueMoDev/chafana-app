@@ -27,11 +27,9 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
   loadProjects: () => {
     if (typeof window === "undefined") return;
 
-    // Traer tasks del storage
     const storedTasks = localStorage.getItem(LOCAL_STORAGE_TASKS_KEY);
     const tasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
 
-    // Traer proyectos del storage
     const storedProjects = localStorage.getItem(LOCAL_STORAGE_KEY);
     const projects: Project[] = storedProjects
       ? JSON.parse(storedProjects)

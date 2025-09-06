@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Project, Task, User, ProjectSection } from "@/interfaces";
 import { useProjectsStore } from "@/stores/useProjectStore";
 import { useTasksStore } from "@/stores/useTaskStore";
@@ -30,7 +32,7 @@ interface ProjectBoardProps {
 
 export function ProjectBoard({ project, users }: ProjectBoardProps) {
   const { addSection, updateSection, deleteSection } = useProjectsStore();
-  const { addTask, updateTask, deleteTask } = useTasksStore();
+  const { tasks, loadTasks, addTask, updateTask, deleteTask } = useTasksStore();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
@@ -41,6 +43,15 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
   const [editingSectionName, setEditingSectionName] = useState("");
   const [newSectionName, setNewSectionName] = useState("");
   const [isAddingSection, setIsAddingSection] = useState(false);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+  const getTasksBySection = (sectionId: string) =>
+    tasks
+      .filter((t) => t.sectionId === sectionId)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const getUserById = (id: string) => users.find((user) => user.id === id);
 
@@ -82,15 +93,37 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
     e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (e: React.DragEvent, targetSectionId: string) => {
+  const handleDrop = (
+    e: React.DragEvent,
+    targetSectionId: string,
+    targetTaskId?: string
+  ) => {
     e.preventDefault();
-    if (draggedTask && draggedTask.sectionId !== targetSectionId) {
+    if (!draggedTask) return;
+
+    const sectionTasks = getTasksBySection(targetSectionId);
+
+    if (targetTaskId) {
+      const targetIndex = sectionTasks.findIndex((t) => t.id === targetTaskId);
+      const updatedTasks = sectionTasks.filter((t) => t.id !== draggedTask.id);
+      updatedTasks.splice(targetIndex, 0, {
+        ...draggedTask,
+        sectionId: targetSectionId,
+      });
+
+      updatedTasks.forEach((t, index) => {
+        updateTask({ ...t, order: index, updatedAt: new Date() });
+      });
+    } else {
+      const newOrder = sectionTasks.length;
       updateTask({
         ...draggedTask,
         sectionId: targetSectionId,
+        order: newOrder,
         updatedAt: new Date(),
       });
     }
+
     setDraggedTask(null);
   };
 
@@ -124,10 +157,9 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
     const section = project.sections.find((s) => s.id === sectionId);
     if (!section) return;
 
-    // Reasignar tareas a la primera sección distinta
     const firstSection = project.sections.find((s) => s.id !== sectionId);
-    if (firstSection && section.tasks) {
-      section.tasks.forEach((task) => {
+    if (firstSection) {
+      getTasksBySection(sectionId).forEach((task) => {
         updateTask({
           ...task,
           sectionId: firstSection.id,
@@ -146,7 +178,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
   return (
     <>
       <div className="p-6 space-y-6 theme-transition">
-        {/* Project Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center space-x-3">
@@ -162,10 +193,9 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
           </div>
         </div>
 
-        {/* Board */}
         <div className="flex space-x-6 overflow-x-auto pb-4">
           {sortedSections.map((section) => {
-            const sectionTasks = section.tasks || [];
+            const sectionTasks = getTasksBySection(section.id);
 
             return (
               <div
@@ -174,7 +204,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, section.id)}
               >
-                {/* Section Header */}
                 <div className="bg-muted/30 rounded-lg p-4 mb-4 theme-transition">
                   <div className="flex items-center justify-between mb-3">
                     {editingSectionId === section.id ? (
@@ -241,14 +270,13 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                   <Button
                     onClick={() => handleCreateTask(section.id)}
                     className="w-full h-9 theme-transition"
-                    variant={"secondary"}
+                    variant="secondary"
                     size="sm"
                   >
                     <Plus className="w-4 h-4 mr-2" /> Agregar Tarea
                   </Button>
                 </div>
 
-                {/* Tasks */}
                 <div className="space-y-3 min-h-[200px]">
                   {sectionTasks.map((task) => {
                     const assignee = task.assigneeId
@@ -262,6 +290,8 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
                         className="hover:shadow-md transition-all duration-200 cursor-pointer theme-transition hover:scale-[1.02] border-border/50"
                         draggable
                         onDragStart={(e) => handleDragStart(e, task)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, section.id, task.id)}
                         onClick={() => handleTaskClick(task)}
                       >
                         <CardHeader className="pb-3">
@@ -352,7 +382,6 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
             );
           })}
 
-          {/* Add Section */}
           <div className="flex-shrink-0 w-80">
             {isAddingSection ? (
               <div className="bg-muted/30 rounded-lg p-4 theme-transition">
@@ -403,7 +432,7 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
         open={taskDrawerOpen}
         onOpenChange={setTaskDrawerOpen}
         task={selectedTask}
-        users={mockUsers as User[]}
+        users={mockUsers}
         onTaskUpdate={updateTask}
         onTaskDelete={deleteTask}
       />
@@ -416,9 +445,10 @@ export function ProjectBoard({ project, users }: ProjectBoardProps) {
             ...taskData,
             projectId: project.id,
             sectionId: selectedSectionId,
+            order: getTasksBySection(selectedSectionId).length,
           })
         }
-        users={mockUsers as User[]}
+        users={mockUsers}
         projectId={project.id}
         sectionId={selectedSectionId}
       />

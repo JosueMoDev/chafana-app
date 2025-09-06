@@ -62,7 +62,6 @@ export function CreateTaskModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Enviar tarea
     onTaskCreate({
       ...formData,
       assigneeId:
@@ -70,7 +69,6 @@ export function CreateTaskModal({
       dueDate: formData.dueDate,
     });
 
-    // Resetear formulario manteniendo projectId y sectionId
     setFormData({
       title: "",
       description: "",
